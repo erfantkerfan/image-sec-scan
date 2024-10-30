@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-image-sec-scan
+  namespace: security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-image-sec-scan
+  template:
+    metadata:
+      labels:
+        app: nginx-image-sec-scan
+    spec: 
+      volumes:
+      - name: image-sec-scan-pvc
+        persistentVolumeClaim:
+          claimName: image-sec-scan-pvc
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      containers:
+      - name: nginx
+        image: art.azki.com/docker/nginx:alpine
+        volumeMounts:
+        - name: image-sec-scan-pvc
+          mountPath: /mnt/reports
+        - name: nginx-config
+          mountPath: /etc/nginx
+          readOnly: true
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: security
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        default_type application/octet-stream;
+        sendfile on;
+        server {
+            listen 80 reuseport;
+            server_name _;
+            location / {
+                alias /mnt/reports/;
+                autoindex_exact_size off;
+                autoindex on;
+            }
+        }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-image-sec-scan-service
+  namespace: security
+spec:
+  selector:
+    app: nginx-image-sec-scan
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30666   
+  type: NodePort
