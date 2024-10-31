@@ -65,9 +65,9 @@ if __name__ == '__main__':
 
     # parsing input arguments
     parser = argparse.ArgumentParser(description='A wrapper for grype to generate html based output')
-    parser.add_argument('-i', '--input', help='input to load image names', default='./reports/images.txt', type=str)
-    parser.add_argument('-o', '--output', help='output dir to put reports', default='./reports/', type=str)
-    parser.add_argument('-t', '--template', help='template to use with grype', default='./reports/html.tmpl', type=str)
+    parser.add_argument('-i', '--input', help='input to load image names', default='/mnt/reports/images.txt', type=str)
+    parser.add_argument('-o', '--output', help='ou  tput dir to put reports', default='/mnt/reports/', type=str)
+    parser.add_argument('-t', '--template', help='template to use with grype', default='/mnt/reports/html.tmpl', type=str)
     parser.add_argument('-v', '--verbose', help='run in verbose mode', default=False, action='store_true')
     args = parser.parse_args()
 
