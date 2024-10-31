@@ -17,7 +17,11 @@ services:
   generator:
     tty: true
     container_name: report-generator
+    restart: never
     hostname: report-generator
+    build:
+      context: .
+      dockerfile: Dockerfile
     command:
         - 'python'
         - 'main.py'
@@ -27,9 +31,6 @@ services:
         - '/mnt/reports/'
         - '-t'
         - '/mnt/reports/html.tmpl'
-    build:
-      context: .
-      dockerfile: Dockerfile
     volumes:
       - ./reports:/mnt/reports
       - /var/run/docker.sock:/var/run/docker.sock
