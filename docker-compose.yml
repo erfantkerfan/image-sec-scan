@@ -17,7 +17,7 @@ services:
   generator:
     tty: true
     container_name: report-generator
-    restart: never
+    restart: no
     hostname: report-generator
     build:
       context: .
