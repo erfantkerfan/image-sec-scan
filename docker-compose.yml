@@ -1,0 +1,38 @@
+services:
+  web:
+    container_name: web
+    restart: unless-stopped
+    image: art.azki.com/docker/nginx:alpine
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./reports:/mnt/reports:ro
+      - ./repositories:/etc/apk/repositories:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 5s
+      timeout: 1s   
+      retries: 3
+      start_period: 1s
+  generator:
+    tty: true
+    container_name: report-generator
+    hostname: report-generator
+    command:
+        - 'python'
+        - 'main.py'
+        - '-i'
+        - '/mnt/reports/images.txt'
+        - '-o'
+        - '/mnt/reports/'
+        - '-t'
+        - '/mnt/reports/html.tmpl'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./reports:/mnt/reports
+      - /var/run/docker.sock:/var/run/docker.sock
+#    environment:
+#      GRYPE_DB_UPDATE_URL: http://172.21.30.70:8118

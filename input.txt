@@ -1,2 +1,0 @@
-art.azki.com/docker/alpine:latest
-art.azki.com/docker/nginx:alpine

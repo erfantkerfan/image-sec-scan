@@ -1,14 +1,75 @@
 import subprocess
-package_name = 'grype'
-install_command = f'apk add {package_name}'
-try:
-    subprocess.run(install_command, shell=True, check=True)
-    print(f"{package_name} has been successfully installed.")
-except subprocess.CalledProcessError as e:
-    print(f"Failed to install {package_name}: {e}")
+from datetime import datetime
+import logging
+import argparse
+from pathlib import Path
+import os
 
-with open('/mnt/reports/input.txt', 'r') as file:
-    # Read each line in the file
-    for line in file:
-        # Print each line
-        print(line.strip())
+
+def extract_image_name(input_string):
+    parts = input_string.split(':')
+    if len(parts) > 2 or input_string.isspace() or input_string == '':
+        logging.error(f"Found unsupported string: {input_string}")
+        return False
+    elif len(parts) == 1:
+        logging.warning(f"Found image without tag, using latest: {input_string}")
+    without_tag = parts[0]
+    return without_tag.split('/')[-1]
+
+
+def load_grype_db():
+    logging.info('Loading grype DB')
+    try:
+        result = subprocess.run(
+            ['grype', 'db', 'update'],
+            env=os.environ,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, result.args)
+        logging.info("Grype database updated successfully")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Failed to update Grype database. Exit code: {e.returncode}")
+        logging.error(f"Error message: {e.stderr}")
+        exit(1)
+
+
+def main(input_file: str, output_path: str, template_file: str):
+    formated_date = datetime.now().strftime('%Y-%m-%d')
+    path_tool = Path(f'{output_path}/{formated_date}/')
+    path_tool.mkdir(exist_ok=True)
+
+    with open(input_file, 'r') as file:
+        for line in file:
+            image = line.strip()
+            logging.info(f"Processing image: {image}")
+            try:
+                if extract_image_name(image):
+                    result = subprocess.run(
+                        ['grype', "--by-cve", "--output", "template", "-t", template_file, image],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    with open(f'{output_path}/{formated_date}/{extract_image_name(image)}.html', 'w') as output_file:
+                        output_file.write(result.stdout)
+                    logging.info(f"Successfully processed image: {image}")
+            except subprocess.CalledProcessError as e:
+                logging.error(f"Failed to process image {image}: {e}")
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    # parsing input arguments
+    parser = argparse.ArgumentParser(description='A wrapper for grype to generate html based output')
+    parser.add_argument('-i', '--input', help='input to load image names', default='./reports/images.txt', type=str)
+    parser.add_argument('-o', '--output', help='output dir to put reports', default='./reports/', type=str)
+    parser.add_argument('-t', '--template', help='template to use with grype', default='./reports/html.tmpl', type=str)
+    parser.add_argument('-v', '--verbose', help='run in verbose mode', default=False, action='store_true')
+    args = parser.parse_args()
+
+    load_grype_db()
+    main(args.input, args.output, args.template)
