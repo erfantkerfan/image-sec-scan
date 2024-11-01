@@ -3,6 +3,7 @@
 
 # Except the following files
 !.gitignore
-!.theme/
+!.theme/*
+!.theme/**
 !html.tmpl
 !images.txt.sample
