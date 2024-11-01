@@ -36,6 +36,24 @@ def load_grype_db():
         exit(1)
 
 
+def remove_image(image_name: str):
+    try:
+        result = subprocess.run(
+            ['docker', 'rmi', f'{image_name}'],
+            env=os.environ,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, result.args)
+        logging.info(f"Image removal successful: {image_name}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Image removal unsuccessful: {e.returncode}")
+        logging.error(f"Error message: {e.stderr}")
+        exit(1)
+
+
 def main(input_file: str, output_path: str, template_file: str):
     formated_date = datetime.now().strftime('%Y-%m-%d')
     path_tool = Path(f'{output_path}/{formated_date}/')
@@ -56,6 +74,7 @@ def main(input_file: str, output_path: str, template_file: str):
                     with open(f'{output_path}/{formated_date}/{extract_image_name(image)}.html', 'w') as output_file:
                         output_file.write(result.stdout)
                     logging.info(f"Successfully processed image: {image}")
+                    remove_image(image)
             except subprocess.CalledProcessError as e:
                 logging.error(f"Failed to process image {image}: {e}")
 
