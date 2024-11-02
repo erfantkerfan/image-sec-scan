@@ -4,18 +4,22 @@ import logging
 import argparse
 from pathlib import Path
 import os
+import re
+from functools import lru_cache
 
 
-def image_and_tag_name(input_string):
-    parts = input_string.split(':')
-    if len(parts) > 2 or input_string.isspace() or input_string == '':
-        logging.error(f"Found unsupported string: {input_string}")
+@lru_cache
+def sanitize_docker_image_name(image_name: str):
+    parts = image_name.split(':')
+    if len(parts) > 2 or image_name.isspace() or image_name == '':
+        logging.error(f"Found unsupported string: {image_name}")
         return False
     elif len(parts) == 1:
-        logging.warning(f"Found image without tag, using latest: {input_string}")
-        parts[1] = 'latest'
-    without_tag = parts[0]
-    return without_tag.split('/')[-1] + '_' + parts[1]
+        logging.warning(f"Found image without tag, using latest: {image_name}")
+        image_name = image_name + ':latest'
+    sanitized = re.sub(r'\s+', '', image_name)
+    sanitized = re.sub(r'[^\w\-\.]', '_', sanitized)
+    return sanitized.strip('_')
 
 
 def load_grype_db():
@@ -65,14 +69,14 @@ def main(input_file: str, output_path: str, template_file: str):
             image = line.strip()
             logging.info(f"Processing image: {image}")
             try:
-                if extract_image_name(image):
+                if sanitize_docker_image_name(image):
                     result = subprocess.run(
                         ['grype', "--by-cve", "--output", "template", "-t", template_file, image],
                         capture_output=True,
                         text=True,
                         check=True
                     )
-                    with open(f'{output_path}/{formated_date}/{image_and_tag_name(image)}.html', 'w') as output_file:
+                    with open(f'{output_path}/{formated_date}/{sanitize_docker_image_name(image)}.html', 'w') as output_file:
                         output_file.write(result.stdout)
                     logging.info(f"Successfully processed image: {image}")
                     remove_image(image)
