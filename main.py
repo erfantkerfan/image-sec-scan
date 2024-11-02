@@ -6,15 +6,16 @@ from pathlib import Path
 import os
 
 
-def extract_image_name(input_string):
+def image_and_tag_name(input_string):
     parts = input_string.split(':')
     if len(parts) > 2 or input_string.isspace() or input_string == '':
         logging.error(f"Found unsupported string: {input_string}")
         return False
     elif len(parts) == 1:
         logging.warning(f"Found image without tag, using latest: {input_string}")
+        parts[1] = 'latest'
     without_tag = parts[0]
-    return without_tag.split('/')[-1]
+    return without_tag.split('/')[-1] + '_' + parts[1]
 
 
 def load_grype_db():
@@ -71,7 +72,7 @@ def main(input_file: str, output_path: str, template_file: str):
                         text=True,
                         check=True
                     )
-                    with open(f'{output_path}/{formated_date}/{extract_image_name(image)}.html', 'w') as output_file:
+                    with open(f'{output_path}/{formated_date}/{image_and_tag_name(image)}.html', 'w') as output_file:
                         output_file.write(result.stdout)
                     logging.info(f"Successfully processed image: {image}")
                     remove_image(image)
