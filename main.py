@@ -56,7 +56,6 @@ def remove_image(image_name: str):
     except subprocess.CalledProcessError as e:
         logging.error(f"Image removal unsuccessful: {e.returncode}")
         logging.error(f"Error message: {e.stderr}")
-        exit(1)
 
 
 def main(input_file: str, output_path: str, template_file: str):
