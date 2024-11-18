@@ -1,2 +1,3 @@
-art.azki.com/docker/alpine:latest
-art.azki.com/docker/nginx:alpine
+alpine:latest
+nginx:alpine
+python:3-alpine3.20
