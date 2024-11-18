@@ -22,15 +22,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-python:3-alpine3.20}
     command:
-        - 'python'
-        - 'main.py'
-        - '-i'
-        - '/mnt/reports/images.txt'
-        - '-o'
-        - '/mnt/reports/'
-        - '-t'
-        - '/mnt/reports/html.tmpl'
+      - 'python'
+      - 'main.py'
+      - '-i'
+      - '/mnt/reports/images.txt'
+      - '-o'
+      - '/mnt/reports/'
+      - '-t'
+      - '/mnt/reports/html.tmpl'
     volumes:
       - ./reports:/mnt/reports
       - /var/run/docker.sock:/var/run/docker.sock
