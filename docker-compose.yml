@@ -34,4 +34,3 @@ services:
     volumes:
       - ./reports:/mnt/reports
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./repositories:/etc/apk/repositories:ro
