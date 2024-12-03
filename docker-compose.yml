@@ -2,7 +2,7 @@ services:
   web:
     container_name: web
     restart: unless-stopped
-    image: art.azki.com/docker/nginx:alpine
+    image: nginx:alpine-slim
     ports:
       - 8888:80
     volumes:
