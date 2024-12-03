@@ -91,6 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', help='input to load image names', default='/mnt/reports/images.txt', type=str)
     parser.add_argument('-o', '--output', help='ou  tput dir to put reports', default='/mnt/reports/', type=str)
     parser.add_argument('-t', '--template', help='template to use with grype', default='/mnt/reports/html.tmpl', type=str)
+    parser.add_argument('-k', '--keep-image', help='keep image after scan (do not invoke `docker rmi`)', default=False, action='store_true')
     parser.add_argument('-v', '--verbose', help='run in verbose mode', default=False, action='store_true')
     args = parser.parse_args()
 
