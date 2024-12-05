@@ -33,7 +33,7 @@ To install Image Security Scan, follow these steps:
 
     3. create a scheduled scan job based on your needs. crontab for Fridays sample: `0 0 * * FRI root { cd /opt/image-sec-scan && docker compose up --build generator; } > /opt/image-sec-scan/run.log 2>&1`
 
-    4. Visit port `http://127.0.0.1:8888` (default port) to explore the generated scan reports.
+    4. Visit `http://127.0.0.1:8888` (default port) to explore the generated scan reports.
 
 ## ToDo:
 
