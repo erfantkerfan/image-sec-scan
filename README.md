@@ -1,6 +1,6 @@
 # Image Security Scan
 
-Image Security Scan is an open-source tool designed to analyze docker images for potential security vulnerabilities. It helps organizations ensure that their applications doesn't inadvertently introduce security risks.
+Image Security Scan is an open-source tool designed to analyze docker images using [grype](https://github.com/anchore/grype) tool for potential security vulnerabilities. It helps organizations ensure that their applications doesn't inadvertently introduce security risks.
 
 ![screenshot_index_path](images/index.png)
 
